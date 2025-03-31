@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Storyteller Toy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f8e8e8;
+        }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .doll {
+            width: 150px;
+            height: 150px;
+            background: url('/static/doll1.png') no-repeat center center / cover;
+            margin: 20px auto;
+            position: relative;
+            z-index: 1;
+        }
+        .doll.speaking {
+            animation: speak 0.5s infinite alternate;
+        }
+        @keyframes speak {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: #ff6b81;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #ff4757;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>AI Storyteller Toy</h2>
+        <p>Enter a story prompt and let the AI doll tell you a story!</p>
+        <textarea id="prompt" rows="3" style="width: 100%;"></textarea>
+        <br><br>
+        <button onclick="generateStory()">Generate Story</button>
+        <div class="doll" id="doll"></div>
+        <p id="story"></p>
+        <button id="play" onclick="playAudio()" style="display: none;">▶ Play Story</button>
+        <audio id="audio" src=""></audio>
+    </div>
+
+    <script>
+        function generateStory() {
+            const prompt = document.getElementById("prompt").value;
+            fetch("/generate_story", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("story").innerText = data.story;
+                document.getElementById("audio").src = data.audio_url;
+                document.getElementById("play").style.display = "block";
+            });
+        }
+
+        function playAudio() {
+            const audio = document.getElementById("audio");
+            const doll = document.getElementById("doll");
+            audio.play();
+            doll.classList.add("speaking");
+            audio.onended = () => doll.classList.remove("speaking");
+        }
+    </script>
+</body>
+</html>
